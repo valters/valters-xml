@@ -42,7 +42,7 @@ public class TransformToString {
             return stw.toString();
         }
         catch( TransformerException | TransformerFactoryConfigurationError e ) {
-            return "{failed to serialize node "+node+": "+e+"}";
+            return "{failed to serialize node " + node + ": " + e + "}";
         }
     }
 
@@ -61,25 +61,34 @@ public class TransformToString {
             return stw.toString();
         }
         catch( final ParserConfigurationException | TransformerException | TransformerFactoryConfigurationError e ) {
-            return "{failed to serialize node "+node+": "+e+"}";
+            return "{failed to serialize node " + node + ": " + e + "}";
         }
     }
 
-    /** use this to print children of some node, to exclude the parent node. */
+    /** use this to print children of some node, in effect to exclude the parent node. */
     public String nodesToString( final NodeList nodes ) {
-        final StringBuilder sb = new StringBuilder();
+        try {
+            final TransformerFactory tf = XmlDomUtils.transformerFactory();
+            final Transformer transformer = XmlDomUtils.newFragmentTransformer( tf );
 
-        for( int i = 0; i < nodes.getLength(); i++ ) {
-            sb.append( nodeToString( nodes.item( i ) ) );
+            final StringWriter stw = new StringWriter();
+
+            for( int i = 0; i < nodes.getLength(); i++ ) {
+                final Node node = nodes.item( i );
+                transformer.transform( new DOMSource( node ), new StreamResult( stw ) );
+            }
+
+            return stw.toString();
         }
-
-        return sb.toString();
+        catch( TransformerException | TransformerFactoryConfigurationError e ) {
+            return "{failed to serialize nodes: " + e + "}";
+        }
     }
 
     /** tricky stuff that removes namespaces */
     public Document importWithoutNamespaces( final Node node ) throws ParserConfigurationException {
         final Document doc = XmlDomUtils.documentBuilder().newDocument();
-//        doc.setStrictErrorChecking( false ); // doc will throw error if elements have prefixes (xs:complexType), but not sure how to get rid of those
+        //        doc.setStrictErrorChecking( false ); // doc will throw error if elements have prefixes (xs:complexType), but not sure how to get rid of those
         final Node newNode = doc.importNode( node, true );
         final Node cleanNode = XmlDomUtils.removeNamespaceRecursive( newNode, doc );
         XmlDomUtils.removeXmlNsAttribute( cleanNode );
