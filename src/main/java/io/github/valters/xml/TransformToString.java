@@ -29,9 +29,18 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+/**
+ * Get string representations of document fragments. Useful when manipulating XML in deep ways.
+ *
+ * @author vvingolds
+ */
 public class TransformToString {
 
-    /** get single node as text representation */
+    /** Get single node as text representation.
+     *
+     * @param node will be printed as string
+     * @return string representation
+     */
     public String nodeToString( final Node node ) {
         try {
             final TransformerFactory tf = XmlDomUtils.transformerFactory();
@@ -46,7 +55,12 @@ public class TransformToString {
         }
     }
 
-    /** also strip namespaces (if any) when printing node */
+    /** Get single node as text representation, but also strip namespaces (if any) when printing node.
+     * (Because namespaces otherwise tend to look messy.)
+     *
+     * @param node will be printed as string
+     * @return string representation
+     */
     public String nodeToStringClean( final Node node ) {
         if( node instanceof Attr ) {
             return nodeToString( node );
@@ -65,7 +79,11 @@ public class TransformToString {
         }
     }
 
-    /** use this to print children of some node, in effect to exclude the parent node. */
+    /** Use this to print children of some node ({@code node.getChildNodes()}), in effect to exclude the parent node.
+     *
+     * @param nodes will be printed as string
+     * @return string representation
+     */
     public String nodesToString( final NodeList nodes ) {
         try {
             final TransformerFactory tf = XmlDomUtils.transformerFactory();
@@ -85,7 +103,11 @@ public class TransformToString {
         }
     }
 
-    /** tricky stuff that removes namespaces */
+    /** Tricky stuff that removes namespaces bound to node.
+     *
+     * @param node to strip
+     * @return a clean Document with that node imported - leaving any namespace information behind.
+     */
     public Document importWithoutNamespaces( final Node node ) throws ParserConfigurationException {
         final Document doc = XmlDomUtils.documentBuilder().newDocument();
         //        doc.setStrictErrorChecking( false ); // doc will throw error if elements have prefixes (xs:complexType), but not sure how to get rid of those
@@ -96,6 +118,11 @@ public class TransformToString {
         return doc;
     }
 
+    /** Get node cleaned without namespaces.
+     *
+     * @param node to strip
+     * @return node that is leaving any namespace information behind.
+     */
     public Node importNodeWithoutNamespaces( final Node node ) throws ParserConfigurationException {
         return importWithoutNamespaces( node ).getDocumentElement();
     }

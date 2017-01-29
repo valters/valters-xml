@@ -32,6 +32,11 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+/**
+ * Useful boilerplate when working with Boilerplate {@link org.w3c.dom.Document} and friends.
+ *
+ * @author vvingolds
+ */
 public class XmlDomUtils {
 
     /** XML namespace declaration attribute */
@@ -40,7 +45,9 @@ public class XmlDomUtils {
     /** delimiter between node name and ns prefix ("xs:element") */
     private static final char NAMESPACE_PREFIX = ':';
 
-    /** get a namespace aware builder */
+    /** get a namespace aware builder
+     * @return properly set up {@link DocumentBuilder}
+     */
     public static DocumentBuilder documentBuilder() throws ParserConfigurationException {
         final DocumentBuilderFactory dbfac = DocumentBuilderFactory.newInstance();
         dbfac.setNamespaceAware( true );
@@ -51,7 +58,9 @@ public class XmlDomUtils {
     /** ask to pretty-print XML (indentation) */
     public static final String XSLT_INDENT_PROP = "{http://xml.apache.org/xslt}indent-amount";
 
-    /** ask transformer to pretty-print the output: works with Java built-in XML engine */
+    /** ask transformer to pretty-print the output: works with Java built-in XML engine
+     * @param transformer will add indent property
+     */
     public static void setTransformerIndent( final Transformer transformer ) {
         try {
             transformer.setOutputProperty(XSLT_INDENT_PROP, "4");
@@ -60,35 +69,39 @@ public class XmlDomUtils {
         }
     }
 
-    /** does not seem to work anyway */
-    public static void setFactoryIndent( final TransformerFactory tf ) {
-//        try {
-//            tf.setAttribute( "indent-number", new Integer( 4 ) );
-//        }
-//        catch( final IllegalArgumentException e ) {
-//            System.err.println( "indent-number not supported: {}" + e.toString() ); // ignore error, don't print stack-trace
-//        }
-    }
-
+    /** ask transformer to output stand-alone fragment
+     * @param transformer will suppress xml declaration
+     */
     public static void outputStandaloneFragment( final Transformer transformer ) {
         transformer.setOutputProperty( OutputKeys.OMIT_XML_DECLARATION, "yes" );
     }
 
+    /** ask transformer to pretty-print the output
+     * @param transformer will indent output
+     */
     public static void setIndentFlag( final Transformer transformer ) {
         transformer.setOutputProperty( OutputKeys.INDENT, "yes" ); // see http://www.w3.org/TR/xslt#output
     }
 
+    /** ask transformer to use UTF-8
+     * @param transformer will encode output as UTF-8
+     */
     public static void setUtfEncoding( final Transformer transformer ) {
         transformer.setOutputProperty( OutputKeys.ENCODING, StandardCharsets.UTF_8.name() );
     }
 
+    /** a bit of boilerplate
+     * @return shorthand for TransformerFactory.newInstance();
+     */
     public static TransformerFactory transformerFactory() throws TransformerFactoryConfigurationError {
         final TransformerFactory tf = TransformerFactory.newInstance();
-        XmlDomUtils.setFactoryIndent( tf );
         return tf;
     }
 
-    /** set up transformer to output a standalone "fragment" - suppressing xml declaration */
+    /** set up transformer to output a standalone "fragment" - suppressing xml declaration
+     * @param tf see {@link #transformerFactory()}
+     * @return Transformer that is fully set up
+     */
     public static Transformer newFragmentTransformer( final TransformerFactory tf ) throws TransformerConfigurationException {
         final Transformer transformer = tf.newTransformer();
         setUtfEncoding( transformer );
@@ -98,13 +111,19 @@ public class XmlDomUtils {
         return transformer;
     }
 
+    /** a bit of boilerplate: up-cast the Transformer into SAXTransformerFactory
+     * @return shorthand for TransformerFactory.newInstance();
+     */
     public static SAXTransformerFactory saxTransformerFactory() throws TransformerFactoryConfigurationError {
         final SAXTransformerFactory tf = (SAXTransformerFactory) TransformerFactory.newInstance();
-        XmlDomUtils.setFactoryIndent( tf );
         return tf;
     }
 
-    /** set up transformer to output a standalone "fragment" - suppressing xml declaration */
+    /** Set up transformer to output a standalone "fragment" - suppressing xml declaration.
+     *
+     * @param tf see {@link #saxTransformerFactory()}
+     * @return Transformer that is fully set up. But here we get TransformerHandler first from TransformerFactory.
+     */
     public static TransformerHandler newFragmentTransformerHandler( final SAXTransformerFactory tf ) throws TransformerConfigurationException {
         final TransformerHandler resultHandler = tf.newTransformerHandler();
         final Transformer transformer = resultHandler.getTransformer();
@@ -115,7 +134,11 @@ public class XmlDomUtils {
         return resultHandler;
     }
 
-    /** set up transformer to output full xml */
+    /** Set up transformer to output full XML doc.
+     *
+     * @param tf see {@link #saxTransformerFactory()}
+     * @return Transformer that is fully set up. But here we get TransformerHandler first from TransformerFactory.
+     */
     public static TransformerHandler newTransformerHandler( final SAXTransformerFactory tf ) throws TransformerConfigurationException {
         final TransformerHandler resultHandler = tf.newTransformerHandler();
         final Transformer transformer = resultHandler.getTransformer();
@@ -126,8 +149,10 @@ public class XmlDomUtils {
     }
 
     /**
-     * Recursively strips the namespaces from a node.
+     * Recursively strips the namespace information from a node.
      * @param node the starting node.
+     * @param document host document
+     * @return clean node
      */
     public static Node removeNamespaceRecursive( final Node node, final Document document ) {
         Node newNode = null;
@@ -144,7 +169,10 @@ public class XmlDomUtils {
         return newNode;
     }
 
-    /** strip the namespace prefix from node name, if any. this allows avoiding the Document strict validation error, that the node should not have prefix when it does not the have associated namespace */
+    /** Strip the namespace prefix from node name, if any. this allows avoiding the Document strict validation error, that the node should not have prefix when it does not the have associated namespace.
+     * @param nodeName name prefixed as ns:name
+     * @return only 'name' part
+     */
     public static String removeNsPrefix( final String nodeName ) {
         final int colonAt = nodeName.indexOf( NAMESPACE_PREFIX );
         if( colonAt >= 0 ) {
@@ -154,7 +182,9 @@ public class XmlDomUtils {
         return nodeName;
     }
 
-    /** remove stray "xmlns" default namespace element that seems to get left over even after removing namespacing from nodes */
+    /** Remove stray "xmlns" default namespace element that seems to get left over even after removing namespacing from nodes.
+     * @param node node to process
+     */
     public static void removeXmlNsAttribute( final Node node ) {
         final NamedNodeMap attr = node.getAttributes();
         for( int i = 0; i < attr.getLength(); i++ ) {

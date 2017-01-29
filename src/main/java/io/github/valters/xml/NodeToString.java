@@ -20,6 +20,11 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
+/**
+ * Print node to some representations of string. Useful for logging/debugging.
+ *
+ * @author vvingolds
+ */
 public class NodeToString {
 
     private final TransformToString transform = new TransformToString();

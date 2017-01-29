@@ -22,17 +22,32 @@ import javax.xml.xpath.XPathFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+/**
+ * Useful boilerplate for working with {@link javax.xml.xpath.XPath}.
+ *
+ * @author vvingolds
+ */
 public class XPathUtils {
 
+    /** quick instance to use */
     public final XPath xpath = createXPath();
 
-    /** make XPath with XMLSchema namespacing support */
+    /** Make XPath binding {@link StaticNamespaceContext} to it.
+     * @return XPath with XMLSchema namespacing support
+     */
     public static XPath createXPath() {
         final XPath xp = XPathFactory.newInstance().newXPath();
         xp.setNamespaceContext( new StaticNamespaceContext() );
         return xp;
     }
 
+    /**
+     * Apply Xpath expression to find child node in given document.
+     * @param xpath XPath object. use the other form, {@link #findNode(Document, String)} if you don't want to manage it yourself.
+     * @param doc XML document
+     * @param xpathExpr node to find
+     * @return result node
+     */
     public static Node findNode( final XPath xpath, final Document doc, final String xpathExpr ) {
         try {
             final Node node = (Node) xpath.evaluate( xpathExpr, doc, XPathConstants.NODE );
@@ -46,6 +61,12 @@ public class XPathUtils {
         }
     }
 
+    /**
+     * Apply Xpath expression to find child node in given document. This uses local {@link #xpath} instance.
+     * @param doc XML document
+     * @param xpathExpr node to find
+     * @return result node
+     */
     public Node findNode( final Document doc, final String xpathExpr ) {
         return findNode( xpath, doc, xpathExpr );
     }

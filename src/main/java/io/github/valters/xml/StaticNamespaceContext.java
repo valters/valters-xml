@@ -21,13 +21,18 @@ import java.util.Map;
 import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
 
+/**
+ * Namespace support for XPath. Provides out of the box NS that namespace-aware XML usually has.
+ *
+ * @author vvingolds
+ */
 public class StaticNamespaceContext implements NamespaceContext {
 
     /** prefix used when importing the XML_SCHEMA namespace. MOXy uses "xsd", JAXB RI uses "xs" */
     public static final String SCHEMA_NS_PREFIX = "xs";
 
-    HashMap<String,String> namespaceToPrefix = new HashMap<String, String>();
-    HashMap<String,String> prefixToNamespace = new HashMap<String, String>();
+    private final HashMap<String,String> namespaceToPrefix = new HashMap<String, String>();
+    private final HashMap<String,String> prefixToNamespace = new HashMap<String, String>();
 
     public StaticNamespaceContext() {
         super();
@@ -52,8 +57,7 @@ public class StaticNamespaceContext implements NamespaceContext {
     }
 
     @Override
-    @SuppressWarnings("rawtypes")
-    public Iterator getPrefixes( final String namespaceURI ) {
+    public Iterator<String> getPrefixes( final String namespaceURI ) {
         return prefixToNamespace.keySet().iterator();
     }
 
